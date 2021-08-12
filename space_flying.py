@@ -21,6 +21,7 @@ screen_height = 600
 display_surf = pygame.display.set_mode((screen_width, screen_height))
 speed = 1
 score = 0
+fps_max = 60
 
 font = pygame.font.SysFont("Verdana", 100)
 font_small = pygame.font.SysFont("Verdana", 30)
@@ -34,19 +35,18 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("images/red_dot2.png")
-        # self.size = random.randint(5, 11) * random.randint(3, 5)
         self.size = random.randint(15, 55)
         self.image = pygame.transform.scale(self.image, (self.size, self.size))
         self.surf = pygame.Surface((self.size, self.size))
         self.rect = self.surf.get_rect()
-        self.rect.x = screen_width + self.surf.get_width() + random.randint(0, 1000)
+        self.rect.x = screen_width + self.surf.get_width() + random.randint(0, 500)
         self.rect.y = random.randint(0, screen_height/2) + random.randint(0, screen_height/2)
         self.spd = random.randint(1, 5) * random.randint(1, 3)
         self.type = random.randint(1, 3)
 
     def move(self):
         global score
-        self.rect.move_ip((self.spd * speed) * -1, 0)
+        self.rect.move_ip(((self.spd * speed)/2) * -1, 0)
         if self.type == 1:
             self.rect.move_ip(0, -1)
         elif self.type == 2:
@@ -62,20 +62,28 @@ class Enemy(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("images/blue_dot2.png")
-        self.surf = pygame.Surface((50, 50))
+        self.image = pygame.image.load("images/player_pos0.png")
+        self.surf = pygame.Surface((90, 40))
         self.rect = self.surf.get_rect(center=(self.surf.get_width()/2, screen_height/2))
+        self.spin = 0
 
     def move(self):
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[K_UP] and self.rect.top >= 0:
-            self.rect.move_ip(0, -20)
+            self.rect.move_ip(0, -7)
+            if self.spin > -3:
+                self.spin -= 0.3
         if pressed_keys[K_DOWN] and self.rect.bottom <= 600:
-            self.rect.move_ip(0, 20)
+            self.rect.move_ip(0, 7)
+            if self.spin < 3:
+                self.spin += 0.3
         if pressed_keys[K_LEFT] and self.rect.left >= 0:
-            self.rect.move_ip(-20, 0)
+            self.rect.move_ip(-7, 0)
         if pressed_keys[K_RIGHT] and self.rect.right <= 800:
-            self.rect.move_ip(20, 0)
+            self.rect.move_ip(7, 0)
+
+        player_pos = "images/player_pos{}.png".format(str(int(self.spin)))
+        self.image = pygame.image.load(player_pos)
 
 
 P1 = Player()
@@ -84,6 +92,9 @@ E2 = Enemy()
 E3 = Enemy()
 E4 = Enemy()
 E5 = Enemy()
+E6 = Enemy()
+E7 = Enemy()
+E8 = Enemy()
 
 enemies = pygame.sprite.Group()
 enemies.add(E1)
@@ -91,6 +102,10 @@ enemies.add(E2)
 enemies.add(E3)
 enemies.add(E4)
 enemies.add(E5)
+enemies.add(E6)
+enemies.add(E7)
+enemies.add(E8)
+
 
 all_sprites = pygame.sprite.Group()
 all_sprites.add(P1)
@@ -99,6 +114,9 @@ all_sprites.add(E2)
 all_sprites.add(E3)
 all_sprites.add(E4)
 all_sprites.add(E5)
+all_sprites.add(E6)
+all_sprites.add(E7)
+all_sprites.add(E8)
 
 
 inc_speed = pygame.USEREVENT + 1
@@ -112,10 +130,12 @@ while True:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 pygame.quit()
                 sys.exit()
+
 
     display_surf.blit(background_img, (0, 0))
     scores_text = font_small.render(str(score), True, white)
@@ -140,9 +160,11 @@ while True:
         sys.exit()
 
     pygame.display.update()
-    FPS.tick(60)
+    FPS.tick(fps_max)
 
 """
+enemies despawn on y axis border
+
 Multiple lives or health bar
 
 Add audio
@@ -154,4 +176,11 @@ Add movement animations to player
 scrolling Background generation
 
 player movements through mouse
+
+Done:
+added player spites for up/down movement
+tweaked player speed
+tweaked enemies speed
+
+
 """
