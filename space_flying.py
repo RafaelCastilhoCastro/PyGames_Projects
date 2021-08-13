@@ -39,25 +39,41 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (self.size, self.size))
         self.surf = pygame.Surface((self.size, self.size))
         self.rect = self.surf.get_rect()
-        self.rect.x = screen_width + self.surf.get_width() + random.randint(0, 500)
+        self.rect.x = screen_width + self.surf.get_width() + random.randint(0, 300)
         self.rect.y = random.randint(0, screen_height/2) + random.randint(0, screen_height/2)
-        self.spd = random.randint(1, 5) * random.randint(1, 3)
-        self.type = random.randint(1, 3)
+        self.x_spd = random.randint(1, 5) * random.randint(1, 3)
+        self.y_spd = 0
+        self.type = random.randint(1, 3)        #Type 0 horizontal. Type 1 ascending. Type 2 descending.
 
     def move(self):
         global score
-        self.rect.move_ip(((self.spd * speed)/2) * -1, 0)
+        self.rect.move_ip(((self.x_spd * speed)/2) * -1, 0)
+
         if self.type == 1:
-            self.rect.move_ip(0, -1)
+            if self.y_spd == 0:     # Softens the Y decrease
+                self.y_spd = -1
+            else:
+                self.y_spd = 0
         elif self.type == 2:
-            self.rect.move_ip(0, 1)
+            if self.y_spd == 0:     # Softens the Y increase
+                self.y_spd = 1
+            else:
+                self.y_spd = 0
+
+        self.rect.move_ip(0, self.y_spd)
 
         if self.rect.right < 0:
             score += 1
-            self.spd = random.randint(1, 5) * random.randint(1, 3)
-            self.rect.right = screen_width + self.surf.get_width()
+            self.x_spd = random.randint(1, 5) * random.randint(1, 3)
             self.rect.center = (screen_width + self.surf.get_width(), (random.randint(0, screen_height)))
 
+        if self.rect.bottom < 0:
+            self.x_spd = random.randint(1, 5) * random.randint(1, 3)
+            self.rect.center = (screen_width + self.surf.get_width(), (random.randint(0, screen_height)))
+
+        if self.rect.top > screen_height:
+            self.x_spd = random.randint(1, 5) * random.randint(1, 3)
+            self.rect.center = (screen_width + self.surf.get_width(), (random.randint(0, screen_height)))
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -70,20 +86,25 @@ class Player(pygame.sprite.Sprite):
     def move(self):
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[K_UP] and self.rect.top >= 0:
-            self.rect.move_ip(0, -7)
+            self.rect.move_ip(0, -5)
             if self.spin > -3:
-                self.spin -= 0.3
-        if pressed_keys[K_DOWN] and self.rect.bottom <= 600:
-            self.rect.move_ip(0, 7)
+                self.spin -= 0.4
+        elif pressed_keys[K_DOWN] and self.rect.bottom <= 600:
+            self.rect.move_ip(0, 5)
             if self.spin < 3:
-                self.spin += 0.3
-        if pressed_keys[K_LEFT] and self.rect.left >= 0:
-            self.rect.move_ip(-7, 0)
-        if pressed_keys[K_RIGHT] and self.rect.right <= 800:
-            self.rect.move_ip(7, 0)
+                self.spin += 0.4
+        elif pressed_keys[K_LEFT] and self.rect.left >= 0:
+            self.rect.move_ip(-5, 0)
+        elif pressed_keys[K_RIGHT] and self.rect.right <= 800:
+            self.rect.move_ip(5, 0)
 
         player_pos = "images/player_pos{}.png".format(str(int(self.spin)))
         self.image = pygame.image.load(player_pos)
+
+
+# def score_inc(self):
+#     global score
+#     score += 1
 
 
 P1 = Player()
@@ -121,6 +142,7 @@ all_sprites.add(E8)
 
 inc_speed = pygame.USEREVENT + 1
 pygame.time.set_timer(inc_speed, 1000)
+# pygame.time.set_timer(score_inc, 1000)
 
 while True:
     for event in pygame.event.get():
@@ -139,7 +161,7 @@ while True:
 
     display_surf.blit(background_img, (0, 0))
     scores_text = font_small.render(str(score), True, white)
-    display_surf.blit(scores_text, (760, 10))
+    display_surf.blit(scores_text, (10, 10))
 
     # DRAWS AND MOVES SPRITES
     display_surf.blit(P1.image, P1.rect)
@@ -163,7 +185,7 @@ while True:
     FPS.tick(fps_max)
 
 """
-enemies despawn on y axis border
+make score time-based 
 
 Multiple lives or health bar
 
@@ -178,9 +200,6 @@ scrolling Background generation
 player movements through mouse
 
 Done:
-added player spites for up/down movement
-tweaked player speed
-tweaked enemies speed
 
 
 """
