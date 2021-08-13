@@ -81,9 +81,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.surf.get_rect(center=(self.surf.get_width()/2, screen_height/2))
         self.spin = 0
 
-    def move(self):
-        pass
 
+    # def move(self):           # KEYBOARD-BASED PLAYER MOVEMENT & ANIMATION
         # pressed_keys = pygame.key.get_pressed()
         # if pressed_keys[K_UP] and self.rect.top >= 0:
         #     self.rect.move_ip(0, -5)
@@ -114,13 +113,13 @@ E8 = Enemy()
 
 enemies = pygame.sprite.Group()
 enemies.add(E1)
-enemies.add(E2)
-enemies.add(E3)
-enemies.add(E4)
-enemies.add(E5)
-enemies.add(E6)
-enemies.add(E7)
-enemies.add(E8)
+# enemies.add(E2)
+# enemies.add(E3)
+# enemies.add(E4)
+# enemies.add(E5)
+# enemies.add(E6)
+# enemies.add(E7)
+# enemies.add(E8)
 
 
 all_sprites = pygame.sprite.Group()
@@ -153,10 +152,22 @@ while True:
                 pygame.quit()
                 sys.exit()
 
+        # MOUSE-BASED PLAYER MOVEMENT & ANIMATION
         if event.type == MOUSEMOTION:
             pygame.mouse.set_visible(False)
             pygame.event.set_grab(True)
             P1.rect.center = (event.pos[0], event.pos[1])
+            mouse_pos = pygame.mouse.get_rel()[1]
+            if mouse_pos < 0:
+                if P1.spin > -3:
+                    P1.spin -= 0.08
+            elif mouse_pos > 0:
+                if P1.spin < 3:
+                    P1.spin += 0.08
+
+            player_pos = "images/player_pos{}.png".format(str(int(P1.spin)))
+            P1.image = pygame.image.load(player_pos)
+
 
     display_surf.blit(background_img, (0, 0))
     scores_text = font_small.render(str(score), True, white)
@@ -164,7 +175,7 @@ while True:
 
     # DRAWS AND MOVES SPRITES
     display_surf.blit(P1.image, P1.rect)
-    P1.move()
+    # P1.move()     # ENABLE FOR KEYBOARD-BASED PLAYER MOVEMENT
     for entity in enemies:
         display_surf.blit(entity.image, entity.rect)
         entity.move()
@@ -185,6 +196,8 @@ while True:
     FPS.tick(fps_max)
 
 """
+sprite changes through mouse movement
+
 Multiple lives or health bar
 
 Add audio
@@ -193,7 +206,7 @@ Add audio
 
 scrolling Background generation
 
-player movements through mouse
+
 
 Done:
 
