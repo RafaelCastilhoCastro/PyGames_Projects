@@ -46,7 +46,6 @@ class Enemy(pygame.sprite.Sprite):
         self.type = random.randint(1, 3)        #Type 0 horizontal. Type 1 ascending. Type 2 descending.
 
     def move(self):
-        global score
         self.rect.move_ip(((self.x_spd * speed)/2) * -1, 0)
 
         if self.type == 1:
@@ -63,7 +62,6 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.move_ip(0, self.y_spd)
 
         if self.rect.right < 0:
-            score += 1
             self.x_spd = random.randint(1, 5) * random.randint(1, 3)
             self.rect.center = (screen_width + self.surf.get_width(), (random.randint(0, screen_height)))
 
@@ -102,11 +100,6 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load(player_pos)
 
 
-# def score_inc(self):
-#     global score
-#     score += 1
-
-
 P1 = Player()
 E1 = Enemy()
 E2 = Enemy()
@@ -142,12 +135,12 @@ all_sprites.add(E8)
 
 inc_speed = pygame.USEREVENT + 1
 pygame.time.set_timer(inc_speed, 1000)
-# pygame.time.set_timer(score_inc, 1000)
 
 while True:
     for event in pygame.event.get():
         if event.type == inc_speed:
             speed += 0.01
+            score += 1
 
         if event.type == QUIT:
             pygame.quit()
@@ -180,6 +173,7 @@ while True:
         time.sleep(2)
         pygame.quit()
         sys.exit()
+
 
     pygame.display.update()
     FPS.tick(fps_max)
