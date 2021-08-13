@@ -82,22 +82,24 @@ class Player(pygame.sprite.Sprite):
         self.spin = 0
 
     def move(self):
-        pressed_keys = pygame.key.get_pressed()
-        if pressed_keys[K_UP] and self.rect.top >= 0:
-            self.rect.move_ip(0, -5)
-            if self.spin > -3:
-                self.spin -= 0.4
-        elif pressed_keys[K_DOWN] and self.rect.bottom <= 600:
-            self.rect.move_ip(0, 5)
-            if self.spin < 3:
-                self.spin += 0.4
-        elif pressed_keys[K_LEFT] and self.rect.left >= 0:
-            self.rect.move_ip(-5, 0)
-        elif pressed_keys[K_RIGHT] and self.rect.right <= 800:
-            self.rect.move_ip(5, 0)
+        pass
 
-        player_pos = "images/player_pos{}.png".format(str(int(self.spin)))
-        self.image = pygame.image.load(player_pos)
+        # pressed_keys = pygame.key.get_pressed()
+        # if pressed_keys[K_UP] and self.rect.top >= 0:
+        #     self.rect.move_ip(0, -5)
+        #     if self.spin > -3:
+        #         self.spin -= 0.3
+        # elif pressed_keys[K_DOWN] and self.rect.bottom <= 600:
+        #     self.rect.move_ip(0, 5)
+        #     if self.spin < 3:
+        #         self.spin += 0.3
+        # elif pressed_keys[K_LEFT] and self.rect.left >= 0:
+        #     self.rect.move_ip(-5, 0)
+        # elif pressed_keys[K_RIGHT] and self.rect.right <= 800:
+        #     self.rect.move_ip(5, 0)
+
+        # player_pos = "images/player_pos{}.png".format(str(int(self.spin)))
+        # self.image = pygame.image.load(player_pos)
 
 
 P1 = Player()
@@ -132,7 +134,7 @@ all_sprites.add(E6)
 all_sprites.add(E7)
 all_sprites.add(E8)
 
-
+# INCREASE GAME SPEED & SCORE
 inc_speed = pygame.USEREVENT + 1
 pygame.time.set_timer(inc_speed, 1000)
 
@@ -151,6 +153,10 @@ while True:
                 pygame.quit()
                 sys.exit()
 
+        if event.type == MOUSEMOTION:
+            pygame.mouse.set_visible(False)
+            pygame.event.set_grab(True)
+            P1.rect.center = (event.pos[0], event.pos[1])
 
     display_surf.blit(background_img, (0, 0))
     scores_text = font_small.render(str(score), True, white)
@@ -179,15 +185,11 @@ while True:
     FPS.tick(fps_max)
 
 """
-make score time-based 
-
 Multiple lives or health bar
 
 Add audio
     ambient
     player moves
-
-Add movement animations to player
 
 scrolling Background generation
 
