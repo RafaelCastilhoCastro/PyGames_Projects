@@ -38,13 +38,13 @@ class Enemy(pygame.sprite.Sprite):
         self.surf = pygame.Surface((self.size, self.size))
         self.rect = self.surf.get_rect()
         self.rect.x = screen_width + self.surf.get_width() + random.randint(0, 300)
-        self.rect.y = random.randint(0, screen_height/2) + random.randint(0, screen_height/2)
-        self.x_spd = random.randint(1, 5) * random.randint(1, 3)
+        self.rect.y = random.randint(0, screen_height / 2) + random.randint(0, screen_height / 2)
+        self.x_spd = random.randint(2, 6)
         self.y_spd = 0
         self.type = random.randint(1, 3)        # Type 0 horizontal. Type 1 ascending. Type 2 descending.
 
     def move(self):
-        self.rect.move_ip(((self.x_spd * speed)/2) * -1, 0)
+        self.rect.move_ip((self.x_spd * speed) * -1, 0)
 
         if self.type == 1:
             if self.y_spd == 0:     # Softens the Y decrease
@@ -59,16 +59,17 @@ class Enemy(pygame.sprite.Sprite):
 
         self.rect.move_ip(0, self.y_spd)
 
+        # ENEMIES DESPAWN & RESPAWN
         if self.rect.right < 0:
-            self.x_spd = random.randint(1, 5) * random.randint(1, 3)
+            self.x_spd = random.randint(2, 6)
             self.rect.center = (screen_width + self.surf.get_width(), (random.randint(0, screen_height)))
 
         if self.rect.bottom < 0:
-            self.x_spd = random.randint(1, 5) * random.randint(1, 3)
+            self.x_spd = random.randint(2, 6)
             self.rect.center = (screen_width + self.surf.get_width(), (random.randint(0, screen_height)))
 
         if self.rect.top > screen_height:
-            self.x_spd = random.randint(1, 5) * random.randint(1, 3)
+            self.x_spd = random.randint(2, 6)
             self.rect.center = (screen_width + self.surf.get_width(), (random.randint(0, screen_height)))
 
 
@@ -138,15 +139,27 @@ E6 = Enemy()
 E7 = Enemy()
 E8 = Enemy()
 
-enemies = pygame.sprite.Group()
-enemies.add(E1)
-enemies.add(E2)
-enemies.add(E3)
-enemies.add(E4)
-enemies.add(E5)
-enemies.add(E6)
-enemies.add(E7)
-enemies.add(E8)
+all_enemies = pygame.sprite.Group()
+all_enemies.add(E1)
+all_enemies.add(E2)
+all_enemies.add(E3)
+all_enemies.add(E4)
+all_enemies.add(E5)
+all_enemies.add(E6)
+all_enemies.add(E7)
+all_enemies.add(E8)
+
+enemies1 = pygame.sprite.Group()
+enemies1.add(E1)
+enemies1.add(E2)
+enemies1.add(E3)
+enemies1.add(E4)
+
+enemies2 = pygame.sprite.Group()
+enemies2.add(E5)
+enemies2.add(E6)
+enemies2.add(E7)
+enemies2.add(E8)
 
 all_sprites = pygame.sprite.Group()
 all_sprites.add(P1)
@@ -159,7 +172,7 @@ all_sprites.add(E6)
 all_sprites.add(E7)
 all_sprites.add(E8)
 
-bg_obj = Background()
+background = Background()
 
 
 # INCREASE GAME SPEED & SCORE
@@ -197,8 +210,8 @@ while True:
             player_pose = "images/player_pose{}.png".format(str(int(P1.spin)))
             P1.image = pygame.image.load(player_pose)
 
-    bg_obj.move()
-    bg_obj.render()
+    background.move()
+    background.render()
 
     # DRAW SCORE
     scores_text = font_small.render(str(score), True, white)
@@ -207,12 +220,12 @@ while True:
     # DRAWS AND MOVES SPRITES
     display_surf.blit(P1.image, P1.rect)
     # P1.move()     # ENABLE FOR KEYBOARD-BASED PLAYER MOVEMENT
-    for entity in enemies:
+    for entity in all_enemies:
         display_surf.blit(entity.image, entity.rect)
         entity.move()
 
-    # COLLISION CHECK
-    if pygame.sprite.spritecollideany(P1, enemies):
+    # COLLISION CHECK PLAYER VS ENEMIES
+    if pygame.sprite.spritecollideany(P1, all_enemies):
         # pygame.mixer.Sound('crash.wav').play()
         display_surf.blit(game_over, (screen_width/2 - game_over_w/2, screen_height/2 - game_over_h/2))
         pygame.display.update()
@@ -222,10 +235,18 @@ while True:
         pygame.quit()
         sys.exit()
 
+    # COLLISION CHECK ENEMIES1 VS ENEMIES2
+    if pygame.sprite.groupcollide(enemies1, enemies2, False, False):
+        collided = pygame.sprite.groupcollide(enemies1, enemies2, False, False)
+        for element in collided.keys():
+            element.type = random.randint(1, 3)
+            element.x_spd += 0.2
+
     pygame.display.update()
     FPS.tick(fps_max)
 
 """
+
 
 Multiple lives or health bar
 
@@ -234,8 +255,8 @@ Add audio
     player moves
 
 
-collision between enemies
 
+player laser shot
 
 Done:
 
