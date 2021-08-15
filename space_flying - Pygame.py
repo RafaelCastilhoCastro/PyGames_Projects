@@ -246,18 +246,17 @@ while True:
     FPS.tick(fps_max)
 
 """
-
-
 Multiple lives or health bar
 
 Add audio
     ambient
     player moves
 
-
-
 player laser shot
 
+enemies animation on laser hit
+
+---
 Done:
 
 
