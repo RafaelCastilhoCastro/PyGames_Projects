@@ -1,6 +1,10 @@
-import time
+import pygame
 
-start_time = time.time()
-while True:
-    print('tick')
-    time.sleep(1.0 - ((time.time() - start_time) % 1.0))cd..
+player_vec = pygame.math.Vector2
+
+var1 = player_vec ((1, 2))
+
+print(var1)
+print(var1.y)
+# print(player_vec[1])
+# print(player_vec[2])
